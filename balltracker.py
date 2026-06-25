@@ -133,5 +133,3 @@ while cap.isOpened():
         break
 cap.release()
 cv2.destroyAllWindows()
-
-#this is 2nd branch hope the main branch doesn't change
