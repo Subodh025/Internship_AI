@@ -36,6 +36,14 @@ def draw_label(frame, text, x, y, color):  # Defines a helper for drawing text o
 
 # Open video.
 cap = cv2.VideoCapture("kdb.mp4")
+fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+fps = cap.get(cv2.CAP_PROP_FPS)
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+if fps <= 0:
+    fps = 30
+out = cv2.VideoWriter("output_ball_tracking.mp4", fourcc, fps, (width, height))
+show_preview = True
 
 while cap.isOpened(): 
     ret, frame = cap.read() 
@@ -125,10 +133,14 @@ while cap.isOpened():
 
     draw_label(frame, possession_text, 20, 40, (0, 255, 255))  # Draws the possession status on the frame.
     draw_label(frame, f"Passes: {pass_count}", 20, 70, (0, 255, 255))  # Draws the pass count on the frame.
+    out.write(frame)  # Saves the annotated frame to the output video.
                 
-    cv2.imshow("Ball Tracking", frame)  # Shows the annotated frame in a window.
-    if cv2.waitKey(1) & 0xFF == ord("q"):  # Checks whether the user pressed the q key.
-        print("Interrupted by user.")  # Prints a message when the user stops the program.
-        break  
+    if show_preview:
+        cv2.imshow("Ball Tracking", frame)  # Shows the annotated frame in a window.
+        if cv2.waitKey(1) & 0xFF == ord("q"):  # Checks whether the user pressed the q key.
+            print("Preview closed. Continuing to save the full video.")  # Prints a message when the preview is closed.
+            show_preview = False
+            cv2.destroyWindow("Ball Tracking")
 cap.release()  
+out.release()
 cv2.destroyAllWindows()  
